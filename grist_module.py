@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -23,7 +23,7 @@ def get_dossiers_depuis_repetable(base_url, api_token, doc_id, table_repetable):
             dossiers[dossier_id_dn] = {
                 "record_ids": [],
                 "blocs_valeur_marchande": [],
-                "blocs_autres_factures": []
+                "blocs_autres_factures": [],
             }
 
         dossiers[dossier_id_dn]["record_ids"].append(r["id"])
@@ -73,14 +73,16 @@ def formater_recap_autres_factures(blocs):
     return resultat
 
 
-def mettre_a_jour_statut(base_url, api_token, doc_id, table_repetable, record_ids, succes, message=""):
+def mettre_a_jour_statut(
+    base_url, api_token, doc_id, table_repetable, record_ids, succes, message=""
+):
     headers = {
         "Authorization": f"Bearer {api_token}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
     url = f"{base_url}/docs/{doc_id}/tables/{table_repetable}/records"
 
-    now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    now = datetime.now(timezone(timedelta(hours=2))).strftime("%d/%m/%Y %H:%M:%S")
     statut = "OK" if succes else f"Erreur : {message}"
 
     payload = {
